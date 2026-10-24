@@ -9,6 +9,7 @@ One button, one color. No phone app, no account, no cloud.</p>
 
 <p>
   <a href="README.md">🇪🇸 Español</a> ·
+  <a href="https://isdose.github.io/ulanzi-led-control/">Website</a> ·
   <a href="#install">Install</a> ·
   <a href="#screenshots">Screenshots</a> ·
   <a href="docs/INSTALL.md">Full guide</a> ·
@@ -91,6 +92,14 @@ searching, **red** error.
   ```
 - **Node.js** only for development; Ulanzi Studio already bundles its Node 20
   runtime.
+
+### From the ZIP
+
+1. Download `com.dose.ledcontrol.ulanziPlugin-0.1.2.zip` from
+   [Releases](https://github.com/isDOSe/ulanzi-led-control/releases/latest).
+2. Extract the `com.dose.ledcontrol.ulanziPlugin` folder into
+   `%APPDATA%\Ulanzi\UlanziDeck\Plugins\`.
+3. Install `bleak` and restart Ulanzi Studio.
 
 ### From source
 
