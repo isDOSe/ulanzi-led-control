@@ -1,0 +1,88 @@
+name: Bug report
+description: Something is not working as expected
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Please fill in as much as you
+        can — BLE controllers vary a lot between models.
+
+  - type: input
+    id: lamp
+    attributes:
+      label: Lamp / controller model
+      description: Name advertised over Bluetooth, or the label on the box.
+      placeholder: LEDBLE-00-D80E, ELK-BLEDOM, Magic Blue clone…
+    validations:
+      required: true
+
+  - type: input
+    id: deck
+    attributes:
+      label: Deck model
+      placeholder: Ulanzi D200H
+    validations:
+      required: true
+
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: Ulanzi Studio, plugin, Windows, Python and bleak.
+      placeholder: Studio 3.4.4 · plugin 0.1.2 · Windows 11 24H2 · Python 3.11 · bleak 0.22
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where does it fail?
+      options:
+        - Installing / deploying the plugin
+        - BLE scan or connection
+        - Color key
+        - Power key
+        - Brightness key
+        - Settings / property inspector
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Drag a Color key…
+        2. Set #FF8800…
+        3. Press the key…
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: |
+        Paste the last lines of `%APPDATA%\Ulanzi\UlanziDeck\Plugins\com.dose.ledcontrol.ulanziPlugin\data\bridge.log`
+        and `plugin.log`. Remove or mask any personal data.
+      render: text
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues and this is not a duplicate.
+          required: true
+        - label: I am using the latest release.
+          required: true

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LED Settings</title>
+  <link rel="stylesheet" href="../libs/css/uspi.css">
+  <link rel="stylesheet" href="pi.css">
+  <script src="../libs/js/constants.js"></script>
+  <script src="../libs/js/eventEmitter.js"></script>
+  <script src="../libs/js/timers.js"></script>
+  <script src="../libs/js/utils.js"></script>
+  <script src="../libs/js/ulanziApi.js"></script>
+</head>
+<body>
+  <div class="uspi-wrapper pi" id="root" style="--pi-accent:#00C7BE">
+    <header class="pi-head">
+      <div class="pi-title" data-localize>Settings &amp; Status</div>
+      <div class="pi-sub" data-localize>Configure the light once, then just use the color keys</div>
+    </header>
+
+    <section class="pi-card">
+      <div class="pi-card-title" data-localize>Connection</div>
+      <div class="pi-status" id="connStatus">
+        <span class="dot"></span>
+        <span class="grow" data-localize>Reading status…</span>
+      </div>
+      <div class="pi-hint" id="connDetail"></div>
+      <div class="pi-actions">
+        <button type="button" class="pi-btn small" id="refresh" data-localize>Refresh</button>
+        <button type="button" class="pi-btn small primary" id="reconnect" data-localize>Reconnect</button>
+      </div>
+    </section>
+
+    <section class="pi-card">
+      <div class="pi-card-title" data-localize>Light</div>
+
+      <div class="pi-field stack">
+        <label class="pi-label" for="address" data-localize>Bluetooth MAC</label>
+        <div class="pi-value-row">
+          <input type="text" class="pi-input mono" id="address" maxlength="17" placeholder="C0:00:00:23:0E:D8" spellcheck="false">
+          <button type="button" class="pi-btn small" id="scan" data-localize>Scan</button>
+        </div>
+        <div class="pi-hint" data-localize>Default: C0:00:00:23:0E:D8. Scanning briefly disconnects the light.</div>
+      </div>
+
+      <div class="pi-devices pi-hidden" id="devices"></div>
+    </section>
+
+    <section class="pi-card">
+      <div class="pi-card-title" data-localize>Palette</div>
+      <div class="pi-palette editable" id="palette"></div>
+      <div class="pi-hint" data-localize>Long-press a color key to cycle through this palette and save the new color on that key.</div>
+    </section>
+
+    <details class="pi-card" id="advanced">
+      <summary class="pi-card-title" data-localize>Advanced</summary>
+
+      <div class="pi-field stack">
+        <label class="pi-label" for="pythonPath" data-localize>Python executable (optional)</label>
+        <input type="text" class="pi-input mono" id="pythonPath" placeholder="auto" spellcheck="false">
+      </div>
+
+      <div class="pi-field stack">
+        <span class="pi-label" data-localize>Keep-alive (seconds, 0 = off)</span>
+        <div class="pi-range-row">
+          <input type="range" class="pi-range" id="keepalive" min="0" max="120" step="5" value="30">
+          <span class="pi-range-value" id="keepaliveValue">30</span>
+        </div>
+        <div class="pi-hint" data-localize>Keeps the BLE link warm so the first key press is fast. Set to 0 if the lamp blinks when idle.</div>
+      </div>
+
+      <div class="pi-field">
+        <span class="pi-label" data-localize>Mock mode (no Bluetooth)</span>
+        <button type="button" class="pi-toggle" id="mock"></button>
+      </div>
+      <div class="pi-field">
+        <span class="pi-label" data-localize>Verbose bridge logs</span>
+        <button type="button" class="pi-toggle" id="debug"></button>
+      </div>
+
+      <div class="pi-divider"></div>
+      <div class="pi-inline">
+        <button type="button" class="pi-btn small ghost" id="openData" data-localize>Open data folder</button>
+        <button type="button" class="pi-btn small ghost" id="identify" data-localize>Diagnose BLE</button>
+      </div>
+      <div class="pi-hint mono" id="dataDir"></div>
+      <pre class="pi-hint mono pi-hidden" id="diagnostics"></pre>
+    </details>
+
+    <div class="pi-actions">
+      <button type="button" class="pi-btn primary" id="save" data-localize>Save settings</button>
+      <button type="button" class="pi-btn ghost" id="reset" data-localize>Reset</button>
+    </div>
+    <div class="pi-status" id="status"></div>
+  </div>
+
+  <script src="pi-common.js"></script>
+  <script src="settings.js"></script>
+</body>
+</html>

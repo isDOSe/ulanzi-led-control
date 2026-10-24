@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LED Color</title>
+  <link rel="stylesheet" href="../libs/css/uspi.css">
+  <link rel="stylesheet" href="pi.css">
+  <script src="../libs/js/constants.js"></script>
+  <script src="../libs/js/eventEmitter.js"></script>
+  <script src="../libs/js/timers.js"></script>
+  <script src="../libs/js/utils.js"></script>
+  <script src="../libs/js/ulanziApi.js"></script>
+</head>
+<body>
+  <div class="uspi-wrapper pi" id="root" style="--pi-accent:#FF3B30">
+    <header class="pi-head">
+      <div class="pi-title" data-localize>Color</div>
+      <div class="pi-sub" data-localize>Press to apply · hold to cycle the palette</div>
+    </header>
+
+    <section class="pi-card">
+      <div class="pi-hero">
+        <div class="pi-swatch" id="hero"></div>
+        <div class="pi-hero-meta">
+          <div class="pi-hero-hex" id="heroHex">#FF3B30</div>
+          <div class="pi-hero-label" id="heroLabel"></div>
+        </div>
+      </div>
+
+      <div class="pi-field">
+        <span class="pi-label" data-localize>Color</span>
+        <div class="pi-value-row">
+          <input type="color" class="pi-color" id="colorPicker" value="#FF3B30">
+          <input type="text" class="pi-input hex mono" id="colorHex" maxlength="7" value="#FF3B30" spellcheck="false">
+        </div>
+      </div>
+
+      <div class="pi-field stack">
+        <label class="pi-label" for="label" data-localize>Label on the key</label>
+        <input type="text" class="pi-input" id="label" maxlength="24" placeholder="Lounge" autocomplete="off">
+      </div>
+
+      <div class="pi-field">
+        <span class="pi-label" data-localize>Show hex code</span>
+        <button type="button" class="pi-toggle" id="showHex" aria-pressed="true"></button>
+      </div>
+    </section>
+
+    <section class="pi-card">
+      <div class="pi-card-title" data-localize>Palette</div>
+      <div class="pi-palette" id="palette"></div>
+      <div class="pi-hint" data-localize>Click a swatch to reuse it. Edit the full palette in Settings.</div>
+    </section>
+
+    <section class="pi-card">
+      <div class="pi-card-title" data-localize>On press</div>
+
+      <div class="pi-field">
+        <span class="pi-label" data-localize>Brightness override</span>
+        <button type="button" class="pi-toggle" id="useBrightness" aria-pressed="false"></button>
+      </div>
+      <div class="pi-range-row pi-hidden" id="brightnessRow">
+        <input type="range" class="pi-range" id="brightness" min="0" max="100" step="1" value="60">
+        <span class="pi-range-value" id="brightnessValue">60%</span>
+      </div>
+
+      <div class="pi-field">
+        <span class="pi-label" data-localize>Turn on if off</span>
+        <button type="button" class="pi-toggle" id="powerOn" aria-pressed="true"></button>
+      </div>
+    </section>
+
+    <div class="pi-actions">
+      <button type="button" class="pi-btn primary" id="test" data-localize>Test on light</button>
+    </div>
+    <div class="pi-status" id="status"></div>
+  </div>
+
+  <script src="pi-common.js"></script>
+  <script src="color.js"></script>
+</body>
+</html>

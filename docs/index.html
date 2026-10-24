@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DOSe LED Control — tu tira LED, en el deck</title>
+<meta name="description" content="Plugin para Ulanzi D200H que convierte tu tira LED RGB Bluetooth en teclas físicas: color, encendido, brillo y estado. Windows, 100% local, MIT." />
+<meta name="theme-color" content="#08080B" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="DOSe LED Control — tu tira LED, en el deck" />
+<meta property="og:description" content="Teclas de color, encendido y brillo para lámparas LED RGB por Bluetooth en el Ulanzi D200H. Sin apps, sin nube." />
+<meta property="og:image" content="https://raw.githubusercontent.com/isDOSe/ulanzi-led-control/main/docs/store/assets/cover-2400x1200.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="icon" href="store/assets/icon-1024x1024.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #08080b;
+    --bg-soft: #0d0d13;
+    --panel: #12121a;
+    --panel-2: #171720;
+    --line: #242430;
+    --line-soft: #1b1b25;
+    --text: #edeff6;
+    --muted: #98a0b2;
+    --teal: #00c7be;
+    --amber: #ffb020;
+    --red: #ff453a;
+    --green: #34c759;
+    --glow: #00c7be;
+    --font: "Archivo", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --mono: "JetBrains Mono", Consolas, ui-monospace, monospace;
+    --radius: 18px;
+    --wrap: 1180px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(900px 500px at 78% -8%, color-mix(in srgb, var(--glow) 14%, transparent), transparent 70%),
+      radial-gradient(700px 420px at 0% 12%, rgba(0, 199, 190, 0.07), transparent 70%);
+    transition: background 900ms ease;
+    z-index: 0;
+  }
+
+  a { color: inherit; }
+
+  img { max-width: 100%; display: block; }
+
+  button { font: inherit; color: inherit; }
+
+  :focus-visible {
+    outline: 2px solid var(--teal);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  .wrap {
+    width: min(var(--wrap), calc(100% - 2.5rem));
+    margin-inline: auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .skip {
+    position: absolute;
+    left: 1rem;
+    top: -100px;
+    z-index: 50;
+    background: var(--teal);
+    color: #04211f;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .skip:focus { top: 1rem; }
+
+  /* ---------- header ---------- */
+
+  .site-head {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: rgba(8, 8, 11, 0.78);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .site-head .wrap {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    height: 66px;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    text-decoration: none;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+  .brand img { width: 30px; height: 30px; border-radius: 7px; }
+  .brand span { font-size: 0.98rem; }
+
+  .ver {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 0.08rem 0.34rem;
+    margin-left: -0.15rem;
+  }
+
+  .nav {
+    display: flex;
+    gap: 1.35rem;
+    margin-left: auto;
+    align-items: center;
+  }
+  .nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.92rem;
+    font-weight: 500;
+    transition: color 160ms ease;
+  }
+  .nav a:hover { color: var(--text); }
+
+  .head-tools {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-left: 1.35rem;
+    border-left: 1px solid var(--line);
+  }
+
+  .lang,
+  .ghost-btn {
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0.34rem 0.62rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--muted);
+    transition: border-color 160ms ease, color 160ms ease, background 160ms ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .lang:hover,
+  .ghost-btn:hover { color: var(--text); border-color: #3a3a4a; background: var(--panel); }
+
+  .ghost-btn svg { width: 15px; height: 15px; }
+
+  /* ---------- hero ---------- */
+
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+    gap: clamp(2rem, 5vw, 4.5rem);
+    align-items: center;
+    padding: clamp(3rem, 6vw, 5.5rem) 0 clamp(3.5rem, 7vw, 6rem);
+  }
+
+  .hero h1 {
+    font-size: clamp(2.65rem, 5.6vw, 4.5rem);
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+    font-weight: 800;
+    margin: 0 0 1.35rem;
+    max-width: 12ch;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    color: var(--glow);
+    transition: color 600ms ease;
+  }
+
+  .hero p.lead {
+    color: var(--muted);
+    font-size: clamp(1.02rem, 1.5vw, 1.14rem);
+    max-width: 46ch;
+    margin: 0 0 2rem;
+  }
+
+  .cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    padding: 0.82rem 1.25rem;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: transform 140ms ease, background 160ms ease, border-color 160ms ease;
+  }
+  .btn:active { transform: translateY(1px); }
+
+  .btn-primary {
+    background: var(--teal);
+    color: #03211f;
+  }
+  .btn-primary:hover { background: #23d6cd; }
+
+  .btn-quiet {
+    border-color: var(--line);
+    color: var(--text);
+    background: transparent;
+  }
+  .btn-quiet:hover { border-color: #3d3d4d; background: var(--panel); }
+
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.4rem;
+    margin-top: 2.1rem;
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+  .hero-meta span { display: inline-flex; align-items: center; gap: 0.45rem; }
+  .hero-meta span::before {
+    content: "";
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--teal);
+    opacity: 0.85;
+  }
+
+  /* ---------- the deck ---------- */
+
+  .deck-stage {
+    position: relative;
+    padding: clamp(0.9rem, 2vw, 1.5rem);
+    border: 1px solid var(--line);
+    border-radius: 26px;
+    background:
+      radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--glow) 17%, transparent), transparent 62%),
+      linear-gradient(180deg, #101017, #0a0a0f 70%);
+    box-shadow: 0 30px 70px -40px rgba(0, 0, 0, 0.9);
+    transition: background 700ms ease;
+  }
+
+  .deck-stage::after {
+    content: "";
+    position: absolute;
+    inset: auto 12% -26px;
+    height: 40px;
+    background: var(--glow);
+    filter: blur(38px);
+    opacity: 0.22;
+    border-radius: 50%;
+    transition: background 700ms ease;
+    pointer-events: none;
+  }
+
+  .deck-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.15rem 0.35rem 0.9rem;
+    font-size: 0.74rem;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+  .deck-top b { color: var(--text); font-weight: 600; letter-spacing: 0.04em; }
+
+  .deck {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(0.5rem, 1.2vw, 0.75rem);
+  }
+
+  .key {
+    position: relative;
+    aspect-ratio: 1;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 15px;
+    padding: 0.62rem 0.6rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: stretch;
+    cursor: pointer;
+    text-align: left;
+    overflow: hidden;
+    background: var(--panel);
+    transition: transform 180ms ease, box-shadow 220ms ease, border-color 220ms ease;
+    animation: key-in 620ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+    isolation: isolate;
+  }
+
+  .key::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.16), transparent 46%);
+    opacity: 0.7;
+    z-index: -1;
+  }
+
+  .key:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 18px 30px -18px color-mix(in srgb, var(--key, #fff) 70%, transparent);
+  }
+
+  .key:focus-visible { outline-offset: 2px; }
+
+  .key .k-hex {
+    font-family: var(--mono);
+    font-size: clamp(0.56rem, 0.9vw, 0.68rem);
+    letter-spacing: 0.02em;
+    align-self: center;
+    margin-top: auto;
+    opacity: 0.82;
+  }
+
+  .key .k-label {
+    font-size: clamp(0.6rem, 0.85vw, 0.7rem);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1.15;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+  }
+
+  .key .k-check {
+    position: absolute;
+    right: 7px;
+    bottom: 7px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.42);
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    transform: scale(0.6);
+    transition: opacity 200ms ease, transform 200ms ease;
+  }
+  .key .k-check svg { width: 9px; height: 9px; }
+  .key.is-active {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--key, #fff) 16%, transparent);
+  }
+  .key.is-active .k-check { opacity: 1; transform: scale(1); }
+
+  .key.tool {
+    background: linear-gradient(170deg, #191922, #0f0f15 72%);
+    border-color: rgba(255, 255, 255, 0.08);
+    color: var(--text);
+  }
+
+  .key .k-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: clamp(0.52rem, 0.78vw, 0.62rem);
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+  .key .k-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    flex: none;
+  }
+
+  .key .k-glyph {
+    display: grid;
+    place-items: center;
+    flex: 1;
+    min-height: 0;
+  }
+  .key .k-glyph svg { width: clamp(26px, 4vw, 38px); height: clamp(26px, 4vw, 38px); }
+
+  .power-key .k-glyph svg { color: var(--green); }
+  .power-key.is-off .k-glyph svg { color: #5b5b6b; }
+  .power-key.is-off .k-state { color: #5b5b6b; }
+  .power-key.is-off .k-dot { background: #5b5b6b; box-shadow: none; }
+  .power-key .k-state { color: var(--green); font-weight: 700; font-size: 0.64rem; }
+
+  .bright-key .k-ring {
+    --val: 80;
+    width: clamp(32px, 5vw, 44px);
+    height: clamp(32px, 5vw, 44px);
+    border-radius: 50%;
+    background:
+      radial-gradient(closest-side, #101017 72%, transparent 73%),
+      conic-gradient(var(--amber) calc(var(--val) * 1%), #2a2a36 0);
+    display: grid;
+    place-items: center;
+    font-family: var(--mono);
+    font-size: clamp(0.6rem, 1vw, 0.72rem);
+    color: var(--text);
+  }
+
+  .bright-key .k-state { color: var(--amber); font-weight: 700; font-size: 0.58rem; letter-spacing: 0.04em; }
+
+  .settings-key .k-glyph svg { color: #dfe3ee; width: clamp(22px, 3.4vw, 30px); height: clamp(22px, 3.4vw, 30px); }
+  .settings-key .k-mac { font-family: var(--mono); font-size: clamp(0.46rem, 0.72vw, 0.56rem); color: var(--muted); letter-spacing: -0.01em; }
+  .settings-key .k-state { color: var(--green); font-weight: 700; font-size: clamp(0.5rem, 0.75vw, 0.6rem); display: inline-flex; align-items: center; gap: 0.3rem; }
+  .settings-key .k-proto { font-family: var(--mono); font-size: clamp(0.4rem, 0.62vw, 0.5rem); color: #6d7383; }
+
+  .deck-caption {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 1rem 0.35rem 0.15rem;
+    font-size: 0.78rem;
+    color: var(--muted);
+    min-height: 2.2rem;
+  }
+  .deck-caption .live {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--glow);
+    box-shadow: 0 0 10px var(--glow);
+    flex: none;
+    transition: background 500ms ease, box-shadow 500ms ease;
+  }
+  .deck-caption b { color: var(--text); font-weight: 600; }
+  .deck-caption kbd {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    border: 1px solid var(--line);
+    border-bottom-width: 2px;
+    border-radius: 5px;
+    padding: 0.05rem 0.3rem;
+    color: var(--muted);
+  }
+
+  @keyframes key-in {
+    from { opacity: 0; transform: translateY(10px) scale(0.96); }
+    to { opacity: 1; transform: none; }
+  }
+
+  /* ---------- bands ---------- */
+
+  .band {
+    border-top: 1px solid var(--line-soft);
+    padding: clamp(3.4rem, 6vw, 5.4rem) 0;
+    scroll-margin-top: 84px;
+  }
+
+  .band-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-bottom: 2.4rem;
+  }
+
+  .band-head h2 {
+    font-size: clamp(1.85rem, 3.4vw, 2.75rem);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    font-weight: 700;
+    margin: 0;
+    max-width: 20ch;
+  }
+
+  .band-head p {
+    color: var(--muted);
+    max-width: 36ch;
+    margin: 0 0 0.25rem;
+    font-size: 0.98rem;
+  }
+
+  /* ---------- key map ---------- */
+
+  .keymap {
+    border-top: 1px solid var(--line);
+  }
+
+  .keymap-row {
+    display: grid;
+    grid-template-columns: 1.1fr 1.9fr 1.2fr;
+    gap: 1.5rem;
+    padding: 1.4rem 0.25rem;
+    border-bottom: 1px solid var(--line-soft);
+    align-items: baseline;
+  }
+
+  .keymap-row.header {
+    color: #6d7383;
+    font-size: 0.72rem;
+    padding-block: 0.75rem;
+  }
+
+  .keymap-row h3 {
+    margin: 0;
+    font-size: 1.02rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .keymap-row h3 small {
+    display: block;
+    font-family: var(--mono);
+    font-weight: 400;
+    font-size: 0.68rem;
+    color: #6d7383;
+    margin-top: 0.15rem;
+    letter-spacing: 0;
+  }
+  .keymap-row p { margin: 0; color: var(--muted); font-size: 0.94rem; }
+  .keymap-row p.long { color: #c3c9d6; font-size: 0.9rem; }
+  .keymap-row p.long span { color: #5d6474; }
+
+  /* ---------- shots ---------- */
+
+  .shots {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .shot {
+    position: relative;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--panel);
+    cursor: zoom-in;
+    display: block;
+  }
+  .shot.wide { grid-column: 1 / -1; }
+  .shot.wide img { aspect-ratio: 21 / 8; object-fit: cover; object-position: top; }
+  .shot img {
+    width: 100%;
+    height: auto;
+    transition: transform 500ms cubic-bezier(0.2, 0.7, 0.2, 1), opacity 300ms ease;
+    opacity: 0.94;
+  }
+  .shot:hover img { transform: scale(1.015); opacity: 1; }
+  .shot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+    border-radius: inherit;
+    pointer-events: none;
+  }
+  .shot figcaption {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 2.5rem 1rem 0.9rem;
+    background: linear-gradient(transparent, rgba(5, 5, 8, 0.92));
+    font-size: 0.78rem;
+    color: #c9cedb;
+    text-align: left;
+  }
+
+  dialog.lightbox {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #0a0a0f;
+    padding: 0;
+    max-width: min(1400px, 94vw);
+    max-height: 92vh;
+    color: var(--text);
+  }
+  dialog.lightbox::backdrop { background: rgba(3, 3, 5, 0.86); backdrop-filter: blur(3px); }
+  dialog.lightbox img { max-height: 82vh; width: auto; margin: auto; }
+  dialog.lightbox .lb-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.65rem 0.9rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  dialog.lightbox button {
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 0.25rem 0.6rem;
+    cursor: pointer;
+    font-size: 0.78rem;
+  }
+
+  /* ---------- steps ---------- */
+
+  .install-grid {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: clamp(2rem, 4vw, 3.5rem);
+    align-items: start;
+  }
+
+  .steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1.5rem;
+    counter-reset: step;
+  }
+
+  .step {
+    position: relative;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--line);
+  }
+  .step::before {
+    counter-increment: step;
+    content: "0" counter(step);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--teal);
+    position: absolute;
+    top: -0.72rem;
+    left: 0;
+    background: var(--bg);
+    padding-right: 0.6rem;
+  }
+  .step h3 { margin: 0 0 0.5rem; font-size: 1.02rem; font-weight: 700; }
+  .step p { margin: 0 0 0.6rem; color: var(--muted); font-size: 0.92rem; max-width: 44ch; }
+  .step a { color: var(--teal); text-decoration: none; font-size: 0.88rem; font-weight: 600; }
+  .step a:hover { text-decoration: underline; }
+  .step code { font-family: var(--mono); font-size: 0.82em; color: #c9d0de; background: var(--panel); padding: 0.1em 0.35em; border-radius: 4px; }
+
+  .terminal {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #0b0b11;
+    overflow: hidden;
+    position: sticky;
+    top: 88px;
+  }
+
+  .term-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.55rem 0.8rem;
+    border-bottom: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--muted);
+  }
+  .term-bar b { font-weight: 400; color: #aeb5c4; }
+  .term-bar .copy {
+    position: static;
+    margin-left: auto;
+    font-family: var(--font);
+    font-size: 0.7rem;
+    padding: 0.25rem 0.55rem;
+  }
+
+  .terminal pre {
+    margin: 0;
+    padding: 1rem 1.1rem 1.15rem;
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    line-height: 1.9;
+    color: #c9d0de;
+    overflow-x: auto;
+  }
+  .terminal .t-c { color: #5e6678; }
+  .terminal .t-p { color: var(--teal); user-select: none; }
+  .terminal .t-ok { color: var(--green); }
+
+  .code {
+    position: relative;
+    background: #0b0b11;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 0.85rem 2.7rem 0.85rem 0.9rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    line-height: 1.75;
+    color: #b9c1d2;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .copy {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: #16161f;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 0.22rem 0.45rem;
+    font-size: 0.64rem;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .copy:hover { color: var(--text); border-color: #3a3a4a; }
+  .copy.done { color: var(--teal); border-color: var(--teal); }
+
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.55rem;
+    margin-top: 2.6rem;
+    padding-top: 1.6rem;
+    border-top: 1px solid var(--line-soft);
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .flow span.node {
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 0.3rem 0.6rem;
+    background: var(--panel);
+    color: #c8cedb;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+  }
+  .flow span.arrow { color: #4c5262; }
+
+  /* ---------- compat / faq ---------- */
+
+  .compat {
+    display: grid;
+    grid-template-columns: 0.9fr 1.4fr;
+    gap: clamp(1.6rem, 4vw, 4rem);
+    align-items: start;
+  }
+
+  .compat h2 {
+    font-size: clamp(1.75rem, 3vw, 2.4rem);
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+    margin: 0 0 1rem;
+  }
+  .compat p { color: var(--muted); font-size: 0.95rem; margin: 0 0 1rem; max-width: 40ch; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+  .chip {
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 0.32rem 0.62rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: #c2c9d7;
+    background: var(--panel);
+  }
+  .chip.teal { color: var(--teal); border-color: color-mix(in srgb, var(--teal) 35%, var(--line)); }
+
+  .faq { display: grid; gap: 0; border-top: 1px solid var(--line); }
+  .faq details { border-bottom: 1px solid var(--line-soft); }
+  .faq summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 1.1rem 2rem 1.1rem 0;
+    position: relative;
+    font-weight: 600;
+    font-size: 0.98rem;
+  }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after {
+    content: "+";
+    position: absolute;
+    right: 0.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--mono);
+    color: var(--teal);
+    font-size: 1rem;
+  }
+  .faq details[open] summary::after { content: "−"; }
+  .faq details p {
+    margin: 0 0 1.15rem;
+    color: var(--muted);
+    font-size: 0.93rem;
+    max-width: 70ch;
+  }
+  .faq details p code { font-family: var(--mono); font-size: 0.84em; background: var(--panel); padding: 0.1em 0.35em; border-radius: 4px; }
+
+  /* ---------- final ---------- */
+
+  .final {
+    border-top: 1px solid var(--line-soft);
+    padding: clamp(3.5rem, 7vw, 6rem) 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .final::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 760px;
+    height: 380px;
+    transform: translate(-50%, -55%);
+    background: radial-gradient(closest-side, rgba(0, 199, 190, 0.16), transparent);
+    pointer-events: none;
+  }
+  .final h2 {
+    font-size: clamp(2rem, 4.2vw, 3.3rem);
+    line-height: 1.04;
+    letter-spacing: -0.03em;
+    margin: 0 auto 1rem;
+    max-width: 18ch;
+  }
+  .final p { color: var(--muted); margin: 0 auto 2rem; max-width: 46ch; }
+  .final .cta-row { justify-content: center; }
+
+  /* ---------- footer ---------- */
+
+  .site-foot {
+    border-top: 1px solid var(--line-soft);
+    padding: 2.4rem 0 2.8rem;
+    font-size: 0.82rem;
+    color: #6d7383;
+  }
+  .site-foot .wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.2rem 2rem;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .site-foot a { color: #9aa1b1; text-decoration: none; }
+  .site-foot a:hover { color: var(--text); }
+  .foot-links { display: flex; flex-wrap: wrap; gap: 1.2rem; }
+
+  /* ---------- responsive ---------- */
+
+  @media (max-width: 980px) {
+    .hero { grid-template-columns: 1fr; gap: 2.6rem; }
+    .hero h1 { max-width: 15ch; }
+    .hero p.lead { max-width: 58ch; }
+    .band-head { flex-direction: column; align-items: flex-start; gap: 0.8rem; }
+    .band-head p { max-width: 52ch; }
+    .install-grid { grid-template-columns: 1fr; }
+    .terminal { position: static; }
+    .steps { grid-template-columns: 1fr; gap: 1.8rem; }
+    .step { padding-top: 1.5rem; }
+    .compat { grid-template-columns: 1fr; gap: 1.8rem; }
+    .keymap-row { grid-template-columns: 1fr 1.6fr; }
+    .keymap-row p.long { grid-column: 1 / -1; }
+    .keymap-row.header { display: none; }
+  }
+
+  @media (max-width: 760px) {
+    .nav { display: none; }
+    .site-head .wrap { gap: 0.8rem; }
+    .head-tools { margin-left: auto; }
+    .shots { grid-template-columns: 1fr; }
+    .shot.wide { grid-column: auto; }
+    .deck { gap: 0.45rem; }
+    .key { border-radius: 12px; padding: 0.45rem 0.4rem; }
+    .settings-key .k-mac { display: none; }
+    .settings-key .k-proto { display: none; }
+  }
+
+  @media (max-width: 520px) {
+    body { font-size: 16px; }
+    .brand span { display: none; }
+    .deck { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .keymap-row { grid-template-columns: 1fr; gap: 0.4rem; }
+    .hero-meta { gap: 0.8rem 1.2rem; }
+    .code { font-size: 0.66rem; }
+    dialog.lightbox { max-width: 96vw; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main" data-i18n="skip">Saltar al contenido</a>
+
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="DOSe LED Control">
+      <img src="store/assets/icon-1024x1024.png" alt="" width="30" height="30" />
+      <span>DOSe LED Control</span>
+      <span class="ver">0.1.2</span>
+    </a>
+    <nav class="nav" aria-label="Principal">
+      <a href="#teclas" data-i18n="nav.keys">Las teclas</a>
+      <a href="#capturas" data-i18n="nav.shots">Capturas</a>
+      <a href="#instalar" data-i18n="nav.install">Instalar</a>
+      <a href="#faq" data-i18n="nav.faq">Dudas</a>
+      <a href="https://github.com/isDOSe/ulanzi-led-control/blob/main/docs/INSTALL.md" data-i18n="nav.docs">Documentación</a>
+    </nav>
+    <div class="head-tools">
+      <button class="lang" id="lang" type="button" aria-label="Switch to English">EN</button>
+      <a class="ghost-btn" href="https://github.com/isDOSe/ulanzi-led-control" aria-label="GitHub">
+        <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        <span>GitHub</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap" id="top">
+    <section class="hero">
+      <div>
+        <h1 data-i18n="hero.title">Tu tira LED,<br />con <em>teclas</em>.</h1>
+        <p class="lead" data-i18n="hero.lead">
+          DOSe LED Control convierte el Ulanzi D200H en el panel de luz que tu
+          lámpara nunca tuvo. Color, encendido y brillo a un dedo, sin abrir la
+          app del móvil.
+        </p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#instalar" data-i18n="hero.cta1">Instalar el plugin</a>
+          <a class="btn btn-quiet" href="#capturas" data-i18n="hero.cta2">Ver capturas</a>
+        </div>
+        <div class="hero-meta">
+          <span>Windows 10/11</span>
+          <span>Ulanzi Studio 3.4+</span>
+          <span data-i18n="hero.meta3">Bluetooth LE · 100% local</span>
+        </div>
+      </div>
+
+      <div class="deck-stage" id="stage">
+        <div class="deck-top">
+          <b>D200H</b>
+          <span id="deck-state">LEDBLE · ffe0/ffe1</span>
+        </div>
+
+        <div class="deck" id="deck" aria-label="Demostración interactiva del deck">
+          <button class="key color-key" type="button" style="--key:#FF3B30;background:linear-gradient(160deg,#ff5a50,#c92018 78%);animation-delay:40ms" data-hex="#FF3B30" data-name="Rojo" data-name-en="Red">
+            <span class="k-hex">FF3B30</span>
+            <span class="k-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2 4.8 8.5 9.5 3.8" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </button>
+
+          <button class="key color-key" type="button" style="--key:#FF9500;background:linear-gradient(160deg,#ffab2e,#d97600 78%);animation-delay:80ms" data-hex="#FF9500" data-name="Ámbar" data-name-en="Amber">
+            <span class="k-hex">FF9500</span>
+            <span class="k-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2 4.8 8.5 9.5 3.8" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </button>
+
+          <button class="key color-key" type="button" style="--key:#FFCC00;background:linear-gradient(160deg,#ffdb3d,#d9a400 78%);animation-delay:120ms" data-hex="#FFCC00" data-name="Amarillo" data-name-en="Yellow">
+            <span class="k-hex">FFCC00</span>
+            <span class="k-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2 4.8 8.5 9.5 3.8" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </button>
+
+          <button class="key color-key" type="button" style="--key:#34C759;background:linear-gradient(160deg,#4fdd75,#1d9a3c 78%);animation-delay:160ms" data-hex="#34C759" data-name="Verde" data-name-en="Green">
+            <span class="k-hex">34C759</span>
+            <span class="k-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2 4.8 8.5 9.5 3.8" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </button>
+
+          <button class="key color-key is-active" type="button" style="--key:#00C7BE;background:linear-gradient(160deg,#22ded5,#009a93 78%);animation-delay:200ms" data-hex="#00C7BE" data-name="Cian" data-name-en="Cyan">
+            <span class="k-hex">00C7BE</span>
+            <span class="k-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2 4.8 8.5 9.5 3.8" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </button>
+
+          <button class="key color-key" type="button" style="--key:#32ADE6;background:linear-gradient(160deg,#59c1f0,#0d84bd 78%);animation-delay:240ms" data-hex="#32ADE6" data-name="Cielo" data-name-en="Sky">
+            <span class="k-hex">32ADE6</span>
+            <span class="k-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2 4.8 8.5 9.5 3.8" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </button>
+
+          <button class="key color-key" type="button" style="--key:#007AFF;background:linear-gradient(160deg,#3698ff,#0057c7 78%);animation-delay:280ms" data-hex="#007AFF" data-name="Azul" data-name-en="Blue">
+            <span class="k-hex">007AFF</span>
+            <span class="k-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2 4.8 8.5 9.5 3.8" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </button>
+
+          <button class="key color-key" type="button" style="--key:#AF52DE;background:linear-gradient(160deg,#c274ee,#8327b0 78%);animation-delay:320ms" data-hex="#AF52DE" data-name="Violeta" data-name-en="Violet">
+            <span class="k-hex">AF52DE</span>
+            <span class="k-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2 4.8 8.5 9.5 3.8" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </button>
+
+          <button class="key color-key" type="button" style="--key:#FFFFFF;background:linear-gradient(160deg,#ffffff,#c9cbd4 78%);color:#15151c;animation-delay:360ms" data-hex="#FFFFFF" data-name="Blanco" data-name-en="White">
+            <span class="k-hex" style="opacity:1;color:#3c3f4a">FFFFFF</span>
+            <span class="k-check" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M2.5 6.2 4.8 8.5 9.5 3.8" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </button>
+
+          <button class="key tool power-key" type="button" id="power-key" aria-pressed="true" style="animation-delay:400ms">
+            <span class="k-label" data-i18n="key.power">Power</span>
+            <span class="k-glyph" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 3v8"/><path d="M6.3 6.3a8 8 0 1 0 11.4 0"/></svg>
+            </span>
+            <span class="k-state" id="power-state">ON</span>
+          </button>
+
+          <button class="key tool bright-key" type="button" id="bright-key">
+            <span class="k-label" data-i18n="key.bright">Brillo</span>
+            <span class="k-glyph">
+              <span class="k-ring" id="bright-ring" style="--val:80">80%</span>
+            </span>
+            <span class="k-state" data-i18n="key.level">NIVEL</span>
+          </button>
+
+          <button class="key tool settings-key" type="button">
+            <span class="k-label">LED</span>
+            <span class="k-glyph" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 8.6a3.4 3.4 0 1 0 0 6.8 3.4 3.4 0 0 0 0-6.8Zm9 4.9v-3l-2.4-.8a7 7 0 0 0-.7-1.7l1.1-2.3-2.1-2.1-2.3 1.1a7 7 0 0 0-1.7-.7L12 1.6H9l-.8 2.4a7 7 0 0 0-1.7.7L4.2 3.6 2.1 5.7l1.1 2.3a7 7 0 0 0-.7 1.7L.1 10.5v3l2.4.8a7 7 0 0 0 .7 1.7l-1.1 2.3 2.1 2.1 2.3-1.1a7 7 0 0 0 1.7.7l.8 2.4h3l.8-2.4a7 7 0 0 0 1.7-.7l2.3 1.1 2.1-2.1-1.1-2.3a7 7 0 0 0 .7-1.7l2.4-.8Z"/></svg>
+            </span>
+            <span class="k-mac">C0:00:00:23:0E:D8</span>
+            <span class="k-state"><span class="k-dot" aria-hidden="true"></span><span data-i18n="key.connected">CONECTADO</span></span>
+          </button>
+        </div>
+
+        <div class="deck-caption" aria-live="polite">
+          <span class="live" aria-hidden="true"></span>
+          <span id="caption" data-i18n="deck.hint">Pulsa una tecla para probar · mantén pulsada para ciclar la paleta</span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="band" id="teclas">
+    <div class="wrap">
+      <div class="band-head">
+        <h2 data-i18n="keys.title">Cuatro teclas. Cero apps.</h2>
+        <p data-i18n="keys.lead">El plugin añade cuatro acciones al deck. Se configuran una vez y viven en tu perfil.</p>
+      </div>
+
+      <div class="keymap">
+        <div class="keymap-row header" aria-hidden="true">
+          <span data-i18n="keys.h1">Acción</span>
+          <span data-i18n="keys.h2">Qué hace</span>
+          <span data-i18n="keys.h3">Pulsación larga</span>
+        </div>
+        <div class="keymap-row">
+          <h3>Color <small>com.dose.ledcontrol.deck.color</small></h3>
+          <p data-i18n="keys.color">La tecla es el color: pinta el tono elegido con su etiqueta y su hex. Un anillo marca la última aplicada.</p>
+          <p class="long"><span data-i18n="keys.long">Mantén:</span> <span data-i18n="keys.colorLong">cicla la paleta global y guarda el color nuevo en esa tecla.</span></p>
+        </div>
+        <div class="keymap-row">
+          <h3>Power <small>com.dose.ledcontrol.deck.power</small></h3>
+          <p data-i18n="keys.power">Enciende y apaga. El estado real se refleja en la tecla, no en tu memoria.</p>
+          <p class="long"><span>—</span></p>
+        </div>
+        <div class="keymap-row">
+          <h3>Brightness <small>com.dose.ledcontrol.deck.brightness</small></h3>
+          <p data-i18n="keys.bright">Nivel fijo, subir o bajar por pasos, o ciclo 25 → 50 → 75 → 100.</p>
+          <p class="long"><span>—</span></p>
+        </div>
+        <div class="keymap-row">
+          <h3>Settings &amp; Status <small>com.dose.ledcontrol.deck.settings</small></h3>
+          <p data-i18n="keys.settings">MAC, escaneo BLE, paleta y keep-alive. Verde conectado, ámbar buscando, rojo error.</p>
+          <p class="long"><span data-i18n="keys.long">Mantén:</span> <span data-i18n="keys.settingsLong">reinicia el puente BLE sin reiniciar Ulanzi Studio.</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="capturas">
+    <div class="wrap">
+      <div class="band-head">
+        <h2 data-i18n="shots.title">Se configura una vez</h2>
+        <p data-i18n="shots.lead">Paneles nativos de Ulanzi Studio. Nada de archivos de configuración a mano.</p>
+      </div>
+      <div class="shots">
+        <button class="shot" type="button" data-full="store/assets/screenshot-1-2196x1464.png" data-caption="Color">
+          <img src="store/assets/screenshot-1-2196x1464.png" alt="Panel de configuración de la tecla Color" loading="lazy" />
+          <figcaption data-i18n="shots.c1">Color: selector, etiqueta, hex y brillo opcional.</figcaption>
+        </button>
+        <button class="shot" type="button" data-full="store/assets/screenshot-2-2196x1464.png" data-caption="Settings">
+          <img src="store/assets/screenshot-2-2196x1464.png" alt="Panel de ajustes con MAC, paleta y estado" loading="lazy" />
+          <figcaption data-i18n="shots.c2">Ajustes: MAC, paleta, keep-alive y estado en vivo.</figcaption>
+        </button>
+        <button class="shot wide" type="button" data-full="store/assets/screenshot-3-2196x1464.png" data-caption="Keys">
+          <img src="store/assets/screenshot-3-2196x1464.png" alt="Teclas de color generadas por el plugin" loading="lazy" />
+          <figcaption data-i18n="shots.c3">Cada tecla se dibuja sola con su color y su hex.</figcaption>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="instalar">
+    <div class="wrap">
+      <div class="band-head">
+        <h2 data-i18n="install.title">De cero a verde en cinco minutos</h2>
+        <p data-i18n="install.lead">Necesitas Windows, Ulanzi Studio con el D200H conectado y Python con bleak.</p>
+      </div>
+
+      <div class="install-grid">
+        <ol class="steps">
+          <li class="step">
+            <h3 data-i18n="install.s1t">Prepara Python</h3>
+            <p data-i18n="install.s1p">El puente BLE usa Python 3.10+ y la librería bleak. Una sola vez.</p>
+          </li>
+          <li class="step">
+            <h3 data-i18n="install.s2t">Clona y despliega</h3>
+            <p data-i18n="install.s2p">El deploy copia el plugin a Ulanzi Studio y conserva tus ajustes.</p>
+          </li>
+          <li class="step">
+            <h3 data-i18n="install.s3t">Escanea y pulsa</h3>
+            <p data-i18n="install.s3p">Reinicia Ulanzi Studio, arrastra Settings &amp; Status, pulsa Scan, guarda y reconecta. Después, añade tus colores.</p>
+            <a href="https://github.com/isDOSe/ulanzi-led-control/blob/main/docs/INSTALL.md" data-i18n="install.guide">Guía paso a paso</a>
+          </li>
+        </ol>
+
+        <div class="terminal">
+          <div class="term-bar">
+            <b>PowerShell</b>
+            <button class="copy" type="button" data-copy="pip install bleak&#10;git clone https://github.com/isDOSe/ulanzi-led-control.git&#10;cd ulanzi-led-control&#10;npm run setup&#10;npm run deploy" data-i18n="copy">Copiar</button>
+          </div>
+          <pre><span class="t-c"># 1 · dependencia del puente BLE</span>
+<span class="t-p">PS&gt;</span> pip install bleak
+
+<span class="t-c"># 2 · plugin</span>
+<span class="t-p">PS&gt;</span> git clone https://github.com/isDOSe/ulanzi-led-control.git
+<span class="t-p">PS&gt;</span> cd ulanzi-led-control
+<span class="t-p">PS&gt;</span> npm run setup
+<span class="t-p">PS&gt;</span> npm run deploy
+
+<span class="t-ok">✓</span> com.dose.ledcontrol.ulanziPlugin</pre>
+        </div>
+      </div>
+
+      <div class="flow" aria-label="Arquitectura">
+        <span class="node">D200H</span><span class="arrow">→</span>
+        <span class="node">Ulanzi Studio</span><span class="arrow">→</span>
+        <span class="node">plugin/app.js</span><span class="arrow">→</span>
+        <span class="node">ble_bridge.py</span><span class="arrow">→</span>
+        <span class="node" data-i18n="flow.lamp">tu lámpara</span>
+        <span style="margin-left:auto" data-i18n="flow.note">NDJSON local · sin red</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap compat">
+      <div>
+        <h2 data-i18n="compat.title">Funciona con las tiras baratas que ya tienes</h2>
+        <p data-i18n="compat.lead">Protocolo 7E…EF y 56…AA, detección automática de servicio y caché por MAC. Si tu controlador no está en la lista, cuéntamelo.</p>
+        <a class="btn btn-quiet" href="https://github.com/isDOSe/ulanzi-led-control/issues/new?template=bug_report.yml" data-i18n="compat.cta">Reportar una lámpara</a>
+      </div>
+      <div>
+        <div class="chips">
+          <span class="chip teal">ELK-BLEDOM</span>
+          <span class="chip teal">LEDBLE / JDY</span>
+          <span class="chip">LED LAMP custom</span>
+          <span class="chip">Magic Blue</span>
+          <span class="chip">305bdd41</span>
+          <span class="chip">ffe0 / ffe1</span>
+          <span class="chip">fff0 / fff3</span>
+          <span class="chip">ffe5 / ffe9</span>
+          <span class="chip" data-i18n="compat.generic">clones genéricos</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="faq">
+    <div class="wrap">
+      <div class="band-head">
+        <h2 data-i18n="faq.title">Lo que suele preguntarse</h2>
+      </div>
+      <div class="faq">
+        <details>
+          <summary data-i18n="faq.q1">¿Necesito la app del fabricante?</summary>
+          <p data-i18n="faq.a1">Solo para el primer emparejamiento si tu lámpara lo pide. Después, cierra esa app: si mantiene la conexión, el PC no podrá hablar con la tira.</p>
+        </details>
+        <details>
+          <summary data-i18n="faq.q2">¿Por qué Python y no Bluetooth nativo?</summary>
+          <p data-i18n="faq.a2">Ulanzi Studio ejecuta plugins en Node y Windows no expone BLE de forma fiable desde ahí. bleak es el camino sin compilar módulos nativos. La idea es empaquetar el puente en 1.0 para que no haya que instalar Python.</p>
+        </details>
+        <details>
+          <summary data-i18n="faq.q3">¿Envía algo a internet?</summary>
+          <p data-i18n="faq.a3">No. El plugin no abre conexiones de red ni pide cuenta: habla con tu lámpara por Bluetooth LE y guarda ajustes y logs en su propia carpeta data/.</p>
+        </details>
+        <details>
+          <summary data-i18n="faq.q4">¿Funciona en macOS o con otro deck?</summary>
+          <p data-i18n="faq.a4">Está probado en Windows con el D200H. Cualquier deck de Ulanzi Studio debería servir; macOS usa la misma API de bleak, pero aún no está verificado.</p>
+        </details>
+        <details>
+          <summary data-i18n="faq.q5">¿Puedo cambiar el color desde el propio deck?</summary>
+          <p data-i18n="faq.a5">Sí. Mantén pulsada una tecla de color: avanza por la paleta global y guarda el color nuevo en esa tecla. La paleta se edita en Ajustes.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="final">
+    <div class="wrap">
+      <h2 data-i18n="final.title">Tu próxima tecla puede ser naranja.</h2>
+      <p data-i18n="final.lead">Gratis, MIT y sin cuentas. Si te ahorra abrir la app del móvil, deja una estrella en GitHub.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://github.com/isDOSe/ulanzi-led-control" data-i18n="final.cta1">Ver en GitHub</a>
+        <a class="btn btn-quiet" href="https://github.com/isDOSe/ulanzi-led-control/blob/main/docs/INSTALL.md" data-i18n="final.cta2">Leer la instalación</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>© 2026 Ernesto Flames “DOSe” · <a href="https://www.isdose.com">www.isdose.com</a></span>
+    <div class="foot-links">
+      <a href="https://github.com/isDOSe/ulanzi-led-control" data-i18n="foot.repo">Repositorio</a>
+      <a href="https://github.com/isDOSe/ulanzi-led-control/blob/main/LICENSE">MIT</a>
+      <a href="key-preview.html" data-i18n="foot.preview">Preview de teclas</a>
+      <a href="https://github.com/isDOSe/ulanzi-led-control/blob/main/docs/CHANGELOG.md" data-i18n="foot.changelog">Cambios</a>
+    </div>
+  </div>
+</footer>
+
+<dialog class="lightbox" id="lightbox">
+  <img id="lightbox-img" src="" alt="" />
+  <div class="lb-bar">
+    <span id="lightbox-cap"></span>
+    <button type="button" id="lightbox-close" data-i18n="close">Cerrar</button>
+  </div>
+</dialog>
+
+<script>
+(() => {
+  "use strict";
+
+  /* ---------- i18n ---------- */
+  const I18N = {
+    es: {
+      "skip": "Saltar al contenido",
+      "nav.keys": "Las teclas",
+      "nav.shots": "Capturas",
+      "nav.install": "Instalar",
+      "nav.faq": "Dudas",
+      "nav.docs": "Documentación",
+      "hero.title": "Tu tira LED,<br />con <em>teclas</em>.",
+      "hero.lead": "DOSe LED Control convierte el Ulanzi D200H en el panel de luz que tu lámpara nunca tuvo. Color, encendido y brillo a un dedo, sin abrir la app del móvil.",
+      "hero.cta1": "Instalar el plugin",
+      "hero.cta2": "Ver capturas",
+      "hero.meta3": "Bluetooth LE · 100% local",
+      "deck.hint": "Pulsa una tecla para probar · mantén pulsada para ciclar la paleta",
+      "deck.applied": "Aplicado",
+      "deck.long": "paleta ciclada",
+      "key.power": "Power",
+      "key.bright": "Brillo",
+      "key.level": "NIVEL",
+      "key.connected": "CONECTADO",
+      "keys.title": "Cuatro teclas. Cero apps.",
+      "keys.lead": "El plugin añade cuatro acciones al deck. Se configuran una vez y viven en tu perfil.",
+      "keys.h1": "Acción",
+      "keys.h2": "Qué hace",
+      "keys.h3": "Pulsación larga",
+      "keys.color": "La tecla es el color: pinta el tono elegido con su etiqueta y su hex. Un anillo marca la última aplicada.",
+      "keys.long": "Mantén:",
+      "keys.colorLong": "cicla la paleta global y guarda el color nuevo en esa tecla.",
+      "keys.power": "Enciende y apaga. El estado real se refleja en la tecla, no en tu memoria.",
+      "keys.bright": "Nivel fijo, subir o bajar por pasos, o ciclo 25 → 50 → 75 → 100.",
+      "keys.settings": "MAC, escaneo BLE, paleta y keep-alive. Verde conectado, ámbar buscando, rojo error.",
+      "keys.settingsLong": "reinicia el puente BLE sin reiniciar Ulanzi Studio.",
+      "shots.title": "Se configura una vez",
+      "shots.lead": "Paneles nativos de Ulanzi Studio. Nada de archivos de configuración a mano.",
+      "shots.c1": "Color: selector, etiqueta, hex y brillo opcional.",
+      "shots.c2": "Ajustes: MAC, paleta, keep-alive y estado en vivo.",
+      "shots.c3": "Cada tecla se dibuja sola con su color y su hex.",
+      "install.title": "De cero a verde en cinco minutos",
+      "install.lead": "Necesitas Windows, Ulanzi Studio con el D200H conectado y Python con bleak.",
+      "install.s1t": "Prepara Python",
+      "install.s1p": "El puente BLE usa Python 3.10+ y la librería bleak. Una sola vez.",
+      "install.s2t": "Clona y despliega",
+      "install.s2p": "El deploy copia el plugin a Ulanzi Studio y conserva tus ajustes.",
+      "install.s3t": "Escanea y pulsa",
+      "install.s3p": "Reinicia Ulanzi Studio, arrastra Settings & Status, pulsa Scan, guarda y reconecta. Después, añade tus colores.",
+      "install.guide": "Guía paso a paso",
+      "copy": "Copiar",
+      "copied": "Copiado",
+      "flow.lamp": "tu lámpara",
+      "flow.note": "NDJSON local · sin red",
+      "compat.title": "Funciona con las tiras baratas que ya tienes",
+      "compat.lead": "Protocolo 7E…EF y 56…AA, detección automática de servicio y caché por MAC. Si tu controlador no está en la lista, cuéntamelo.",
+      "compat.cta": "Reportar una lámpara",
+      "compat.generic": "clones genéricos",
+      "faq.title": "Lo que suele preguntarse",
+      "faq.q1": "¿Necesito la app del fabricante?",
+      "faq.a1": "Solo para el primer emparejamiento si tu lámpara lo pide. Después, cierra esa app: si mantiene la conexión, el PC no podrá hablar con la tira.",
+      "faq.q2": "¿Por qué Python y no Bluetooth nativo?",
+      "faq.a2": "Ulanzi Studio ejecuta plugins en Node y Windows no expone BLE de forma fiable desde ahí. bleak es el camino sin compilar módulos nativos. La idea es empaquetar el puente en 1.0 para que no haya que instalar Python.",
+      "faq.q3": "¿Envía algo a internet?",
+      "faq.a3": "No. El plugin no abre conexiones de red ni pide cuenta: habla con tu lámpara por Bluetooth LE y guarda ajustes y logs en su propia carpeta data/.",
+      "faq.q4": "¿Funciona en macOS o con otro deck?",
+      "faq.a4": "Está probado en Windows con el D200H. Cualquier deck de Ulanzi Studio debería servir; macOS usa la misma API de bleak, pero aún no está verificado.",
+      "faq.q5": "¿Puedo cambiar el color desde el propio deck?",
+      "faq.a5": "Sí. Mantén pulsada una tecla de color: avanza por la paleta global y guarda el color nuevo en esa tecla. La paleta se edita en Ajustes.",
+      "final.title": "Tu próxima tecla puede ser naranja.",
+      "final.lead": "Gratis, MIT y sin cuentas. Si te ahorra abrir la app del móvil, deja una estrella en GitHub.",
+      "final.cta1": "Ver en GitHub",
+      "final.cta2": "Leer la instalación",
+      "foot.repo": "Repositorio",
+      "foot.preview": "Preview de teclas",
+      "foot.changelog": "Cambios",
+      "close": "Cerrar"
+    },
+    en: {
+      "skip": "Skip to content",
+      "nav.keys": "The keys",
+      "nav.shots": "Screenshots",
+      "nav.install": "Install",
+      "nav.faq": "FAQ",
+      "nav.docs": "Docs",
+      "hero.title": "Your LED strip,<br />with <em>keys</em>.",
+      "hero.lead": "DOSe LED Control turns the Ulanzi D200H into the light panel your lamp never had. Color, power and brightness one finger away, without opening the phone app.",
+      "hero.cta1": "Install the plugin",
+      "hero.cta2": "See screenshots",
+      "hero.meta3": "Bluetooth LE · 100% local",
+      "deck.hint": "Press a key to try it · hold to cycle the palette",
+      "deck.applied": "Applied",
+      "deck.long": "palette cycled",
+      "key.power": "Power",
+      "key.bright": "Brightness",
+      "key.level": "LEVEL",
+      "key.connected": "CONNECTED",
+      "keys.title": "Four keys. Zero apps.",
+      "keys.lead": "The plugin adds four actions to your deck. Set them up once; they live in your profile.",
+      "keys.h1": "Action",
+      "keys.h2": "What it does",
+      "keys.h3": "Long press",
+      "keys.color": "The key is the color: it paints the chosen tone with its label and hex. A ring marks the last one applied.",
+      "keys.long": "Hold:",
+      "keys.colorLong": "cycles the global palette and saves the new color on that key.",
+      "keys.power": "Turns the lamp on and off. The real state is reflected on the key, not in your memory.",
+      "keys.bright": "Fixed level, step up or down, or a 25 → 50 → 75 → 100 cycle.",
+      "keys.settings": "MAC, BLE scan, palette and keep-alive. Green connected, amber searching, red error.",
+      "keys.settingsLong": "restarts the BLE bridge without restarting Ulanzi Studio.",
+      "shots.title": "Configure it once",
+      "shots.lead": "Native Ulanzi Studio panels. No config files edited by hand.",
+      "shots.c1": "Color: picker, label, hex and optional brightness.",
+      "shots.c2": "Settings: MAC, palette, keep-alive and live status.",
+      "shots.c3": "Every key draws itself with its color and hex.",
+      "install.title": "From zero to green in five minutes",
+      "install.lead": "You need Windows, Ulanzi Studio with the D200H connected, and Python with bleak.",
+      "install.s1t": "Set up Python",
+      "install.s1p": "The BLE bridge uses Python 3.10+ and bleak. Just once.",
+      "install.s2t": "Clone and deploy",
+      "install.s2p": "The deploy script copies the plugin into Ulanzi Studio and keeps your settings.",
+      "install.s3t": "Scan and press",
+      "install.s3p": "Restart Ulanzi Studio, drag Settings & Status, press Scan, save and reconnect. Then add your colors.",
+      "install.guide": "Step-by-step guide",
+      "copy": "Copy",
+      "copied": "Copied",
+      "flow.lamp": "your lamp",
+      "flow.note": "Local NDJSON · no network",
+      "compat.title": "Works with the cheap strips you already own",
+      "compat.lead": "7E…EF and 56…AA protocols, automatic service detection and per-MAC cache. If your controller is missing from the list, tell me.",
+      "compat.cta": "Report a lamp",
+      "compat.generic": "generic clones",
+      "faq.title": "Common questions",
+      "faq.q1": "Do I need the manufacturer app?",
+      "faq.a1": "Only for the first pairing if your lamp asks for it. After that, close it: if it holds the connection, the PC cannot talk to the strip.",
+      "faq.q2": "Why Python instead of native Bluetooth?",
+      "faq.a2": "Ulanzi Studio runs plugins on Node, and Windows does not expose BLE reliably from there. bleak is the path that avoids compiling native modules. The plan is to bundle the bridge by 1.0 so Python is not required.",
+      "faq.q3": "Does it send anything to the internet?",
+      "faq.a3": "No. The plugin opens no network connections and asks for no account: it talks to your lamp over Bluetooth LE and keeps settings and logs in its own data/ folder.",
+      "faq.q4": "Does it work on macOS or another deck?",
+      "faq.a4": "It is tested on Windows with the D200H. Any Ulanzi Studio deck should work; macOS uses the same bleak API but is not verified yet.",
+      "faq.q5": "Can I change the color from the deck itself?",
+      "faq.a5": "Yes. Hold a color key: it walks the global palette and saves the new color on that key. Edit the palette in Settings.",
+      "final.title": "Your next key can be orange.",
+      "final.lead": "Free, MIT and no accounts. If it saves you a trip to the phone app, leave a star on GitHub.",
+      "final.cta1": "View on GitHub",
+      "final.cta2": "Read the install guide",
+      "foot.repo": "Repository",
+      "foot.preview": "Key preview",
+      "foot.changelog": "Changelog",
+      "close": "Close"
+    }
+  };
+
+  const langBtn = document.getElementById("lang");
+  const t = (key) => (I18N[document.documentElement.lang] || I18N.es)[key] || key;
+
+  function applyLang(lang) {
+    document.documentElement.lang = lang;
+    const dict = I18N[lang] || I18N.es;
+    document.querySelectorAll("[data-i18n]").forEach((el) => {
+      const value = dict[el.dataset.i18n];
+      if (value) el.innerHTML = value;
+    });
+    langBtn.textContent = lang === "es" ? "EN" : "ES";
+    langBtn.setAttribute("aria-label", lang === "es" ? "Switch to English" : "Cambiar a español");
+    if (caption.dataset.hex) {
+      caption.innerHTML = `${dict["deck.applied"]} <b>${caption.dataset.hex}</b> ${colorName()}${caption.dataset.cycled === "1" ? ` · ${dict["deck.long"]}` : ""}`;
+    }
+    try { localStorage.setItem("led-lang", lang); } catch (_) {}
+  }
+
+  langBtn.addEventListener("click", () => {
+    applyLang(document.documentElement.lang === "es" ? "en" : "es");
+  });
+
+  /* ---------- deck demo ---------- */
+  const PALETTE = ["#FF3B30", "#FF9500", "#FFCC00", "#34C759", "#00C7BE", "#32ADE6", "#007AFF", "#AF52DE", "#FFFFFF"];
+  const stage = document.getElementById("stage");
+  const caption = document.getElementById("caption");
+  const colorKeys = Array.from(document.querySelectorAll(".color-key"));
+
+  function paint(key, hex) {
+    key.dataset.hex = hex;
+    key.style.setProperty("--key", hex);
+    key.style.background = `linear-gradient(160deg, ${shade(hex, 24)}, ${shade(hex, -26)} 78%)`;
+    key.style.color = luminance(hex) > 0.75 ? "#15151c" : "#fff";
+    const hexEl = key.querySelector(".k-hex");
+    if (hexEl) hexEl.textContent = hex.replace("#", "");
+  }
+
+  function colorName() {
+    const active = document.querySelector(".color-key.is-active");
+    if (!active) return "";
+    return document.documentElement.lang === "en"
+      ? (active.dataset.nameEn || active.dataset.name)
+      : active.dataset.name;
+  }
+
+  function activate(key, cycled) {
+    colorKeys.forEach((k) => k.classList.toggle("is-active", k === key));
+    const hex = key.dataset.hex;
+    stage.style.setProperty("--glow", hex);
+    document.body.style.setProperty("--glow", hex);
+    caption.dataset.hex = hex;
+    caption.dataset.cycled = cycled ? "1" : "0";
+    caption.innerHTML = `${t("deck.applied")} <b>${hex}</b> ${colorName()}${cycled ? ` · ${t("deck.long")}` : ""}`;
+  }
+
+  function shade(hex, amount) {
+    const { r, g, b } = rgb(hex);
+    const clamp = (v) => Math.max(0, Math.min(255, v + amount));
+    return `rgb(${clamp(r)}, ${clamp(g)}, ${clamp(b)})`;
+  }
+
+  function rgb(hex) {
+    const v = hex.replace("#", "");
+    return {
+      r: parseInt(v.slice(0, 2), 16),
+      g: parseInt(v.slice(2, 4), 16),
+      b: parseInt(v.slice(4, 6), 16)
+    };
+  }
+
+  function luminance(hex) {
+    const { r, g, b } = rgb(hex);
+    return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+  }
+
+  colorKeys.forEach((key) => {
+    let timer = null;
+    let longFired = false;
+
+    const start = () => {
+      longFired = false;
+      timer = window.setTimeout(() => {
+        longFired = true;
+        const current = PALETTE.indexOf(key.dataset.hex);
+        const next = PALETTE[(current + 1) % PALETTE.length];
+        paint(key, next);
+        activate(key, true);
+      }, 650);
+    };
+
+    const cancel = () => {
+      if (timer) window.clearTimeout(timer);
+      timer = null;
+    };
+
+    key.addEventListener("pointerdown", start);
+    key.addEventListener("pointerup", cancel);
+    key.addEventListener("pointercancel", cancel);
+    key.addEventListener("pointerleave", cancel);
+    key.addEventListener("click", () => {
+      if (longFired) { longFired = false; return; }
+      activate(key, false);
+    });
+    key.addEventListener("keydown", (event) => {
+      if (event.key === " " || event.key === "Enter") start();
+    });
+    key.addEventListener("keyup", cancel);
+  });
+
+  const powerKey = document.getElementById("power-key");
+  powerKey.addEventListener("click", () => {
+    const off = powerKey.classList.toggle("is-off");
+    powerKey.setAttribute("aria-pressed", String(!off));
+    document.getElementById("power-state").textContent = off ? "OFF" : "ON";
+  });
+
+  const brightKey = document.getElementById("bright-key");
+  const brightRing = document.getElementById("bright-ring");
+  const levels = [25, 50, 75, 100];
+  brightKey.addEventListener("click", () => {
+    const current = Number(brightRing.style.getPropertyValue("--val")) || 80;
+    const next = levels.find((level) => level > current) || levels[0];
+    brightRing.style.setProperty("--val", next);
+    brightRing.textContent = `${next}%`;
+  });
+
+  /* ---------- copy buttons ---------- */
+  document.querySelectorAll(".copy").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const text = button.dataset.copy || "";
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (_) {
+        const area = document.createElement("textarea");
+        area.value = text;
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand("copy");
+        area.remove();
+      }
+      button.textContent = t("copied");
+      button.classList.add("done");
+      window.setTimeout(() => {
+        button.textContent = t("copy");
+        button.classList.remove("done");
+      }, 1600);
+    });
+  });
+
+  /* ---------- lightbox ---------- */
+  const dialog = document.getElementById("lightbox");
+  const dialogImg = document.getElementById("lightbox-img");
+  const dialogCap = document.getElementById("lightbox-cap");
+  const closeBtn = document.getElementById("lightbox-close");
+
+  document.querySelectorAll(".shot").forEach((shot) => {
+    shot.addEventListener("click", () => {
+      dialogImg.src = shot.dataset.full;
+      dialogImg.alt = shot.querySelector("img").alt;
+      dialogCap.textContent = shot.querySelector("figcaption").textContent;
+      dialog.showModal();
+    });
+  });
+  closeBtn.addEventListener("click", () => dialog.close());
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+
+  /* ---------- restore language ---------- */
+  try {
+    const saved = localStorage.getItem("led-lang");
+    if (saved === "en" || saved === "es") applyLang(saved);
+  } catch (_) {}
+})();
+</script>
+</body>
+</html>

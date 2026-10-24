@@ -1,0 +1,23 @@
+{
+  "Name": "DOSe LED Control",
+  "Description": "Control your RGB LED strip/lamp over Bluetooth from the D200H: color keys, power, brightness and a settings key with BLE scanning.",
+  "Actions": [
+    {
+      "Name": "Color",
+      "Tooltip": "Apply a color to the light. Hold the key to cycle the palette."
+    },
+    {
+      "Name": "Power",
+      "Tooltip": "Turn the light on or off."
+    },
+    {
+      "Name": "Brightness",
+      "Tooltip": "Set, step or cycle the brightness."
+    },
+    {
+      "Name": "Settings & Status",
+      "Tooltip": "MAC address, BLE scan, palette and connection status. Press to reconnect; hold to restart the bridge."
+    }
+  ],
+  "Localization": {}
+}

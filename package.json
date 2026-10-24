@@ -1,0 +1,46 @@
+{
+  "name": "ulanzi-led-control",
+  "version": "0.1.2",
+  "private": true,
+  "description": "Ulanzi D200H plugin that controls a BLE RGB LED lamp (color keys, power, brightness, settings with BLE scan).",
+  "author": "Ernesto Flames (DOSe) <https://www.isdose.com>",
+  "license": "MIT",
+  "type": "module",
+  "homepage": "https://github.com/isDOSe/ulanzi-led-control#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/isDOSe/ulanzi-led-control.git"
+  },
+  "bugs": {
+    "url": "https://github.com/isDOSe/ulanzi-led-control/issues"
+  },
+  "keywords": [
+    "ulanzi",
+    "d200h",
+    "deck",
+    "led",
+    "rgb",
+    "bluetooth",
+    "ble",
+    "plugin"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "validate": "node tools/validate.mjs",
+    "test": "node tools/validate.mjs && node tools/test.mjs && node tools/test-identity.mjs",
+    "test:identity": "node tools/test-identity.mjs",
+    "test:py": "python com.dose.ledcontrol.ulanziPlugin/backend/test_led_protocol.py",
+    "preview": "node tools/preview.mjs",
+    "assets": "node tools/store-assets.mjs",
+    "package": "node tools/package.mjs",
+    "bench": "node tools/bench.mjs",
+    "setup": "npm --prefix com.dose.ledcontrol.ulanziPlugin install --no-audit --no-fund",
+    "deploy": "node tools/deploy.mjs",
+    "deploy:clean": "node tools/deploy.mjs --clean",
+    "deploy:dry": "node tools/deploy.mjs --dry-run",
+    "bridge": "python com.dose.ledcontrol.ulanziPlugin/backend/ble_bridge.py --data-dir com.dose.ledcontrol.ulanziPlugin/data --debug",
+    "bridge:mock": "python com.dose.ledcontrol.ulanziPlugin/backend/ble_bridge.py --data-dir com.dose.ledcontrol.ulanziPlugin/data --mock --debug"
+  }
+}

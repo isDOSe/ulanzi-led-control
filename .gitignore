@@ -1,0 +1,30 @@
+# dependencies
+node_modules/
+com.dose.ledcontrol.ulanziPlugin/node_modules/
+
+# runtime data (settings.json, protocol-cache.json, bridge.log, plugin.log)
+com.dose.ledcontrol.ulanziPlugin/data/
+
+# build output
+dist/
+*.zip
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# logs
+*.log
+
+# editors / os
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# local env
+.env
+.env.local

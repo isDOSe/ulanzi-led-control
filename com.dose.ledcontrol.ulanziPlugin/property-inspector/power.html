@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LED Power</title>
+  <link rel="stylesheet" href="../libs/css/uspi.css">
+  <link rel="stylesheet" href="pi.css">
+  <script src="../libs/js/constants.js"></script>
+  <script src="../libs/js/eventEmitter.js"></script>
+  <script src="../libs/js/timers.js"></script>
+  <script src="../libs/js/utils.js"></script>
+  <script src="../libs/js/ulanziApi.js"></script>
+</head>
+<body>
+  <div class="uspi-wrapper pi" id="root" style="--pi-accent:#34C759">
+    <header class="pi-head">
+      <div class="pi-title" data-localize>Power</div>
+      <div class="pi-sub" data-localize>Toggle the lamp on or off</div>
+    </header>
+
+    <section class="pi-card">
+      <div class="pi-power-hero">
+        <div class="pi-power-glyph" id="glyph">⏻</div>
+        <div class="pi-mode-caption" id="stateText" data-localize>Current state unknown until the light answers.</div>
+      </div>
+
+      <div class="pi-field stack">
+        <label class="pi-label" for="label" data-localize>Label on the key</label>
+        <input type="text" class="pi-input" id="label" maxlength="18" placeholder="Power" autocomplete="off">
+      </div>
+    </section>
+
+    <div class="pi-actions">
+      <button type="button" class="pi-btn" id="testOn" data-localize>Test ON</button>
+      <button type="button" class="pi-btn ghost" id="testOff" data-localize>Test OFF</button>
+    </div>
+    <div class="pi-status" id="status"></div>
+
+    <p class="pi-note" data-localize>The key face follows the last known state reported by the bridge.</p>
+  </div>
+
+  <script src="pi-common.js"></script>
+  <script src="power.js"></script>
+</body>
+</html>

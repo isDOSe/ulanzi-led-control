@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LED Brightness</title>
+  <link rel="stylesheet" href="../libs/css/uspi.css">
+  <link rel="stylesheet" href="pi.css">
+  <script src="../libs/js/constants.js"></script>
+  <script src="../libs/js/eventEmitter.js"></script>
+  <script src="../libs/js/timers.js"></script>
+  <script src="../libs/js/utils.js"></script>
+  <script src="../libs/js/ulanziApi.js"></script>
+</head>
+<body>
+  <div class="uspi-wrapper pi" id="root" style="--pi-accent:#FFB020">
+    <header class="pi-head">
+      <div class="pi-title" data-localize>Brightness</div>
+      <div class="pi-sub" data-localize>Preset, step or cycle through levels</div>
+    </header>
+
+    <section class="pi-card">
+      <div class="pi-preview-row">
+        <div class="pi-ring" id="preview"><div class="pi-ring-inner" id="previewValue">60%</div></div>
+        <div>
+          <div class="pi-mode-caption" id="modeCaption" data-localize>Applies a fixed level</div>
+        </div>
+      </div>
+
+      <div class="pi-segment" id="mode">
+        <button type="button" data-mode="preset" class="active" data-localize>Preset</button>
+        <button type="button" data-mode="up" data-localize>Up</button>
+        <button type="button" data-mode="down" data-localize>Down</button>
+        <button type="button" data-mode="cycle" data-localize>Cycle</button>
+      </div>
+
+      <div class="pi-field stack" id="levelField">
+        <span class="pi-label" data-localize>Level</span>
+        <div class="pi-range-row">
+          <input type="range" class="pi-range" id="level" min="0" max="100" step="1" value="60">
+          <span class="pi-range-value" id="levelValue">60%</span>
+        </div>
+      </div>
+
+      <div class="pi-field stack pi-hidden" id="stepField">
+        <span class="pi-label" data-localize>Step</span>
+        <div class="pi-range-row">
+          <input type="range" class="pi-range" id="step" min="1" max="50" step="1" value="10">
+          <span class="pi-range-value" id="stepValue">10</span>
+        </div>
+      </div>
+
+      <div class="pi-field stack">
+        <label class="pi-label" for="label" data-localize>Label on the key</label>
+        <input type="text" class="pi-input" id="label" maxlength="18" placeholder="Brightness" autocomplete="off">
+      </div>
+    </section>
+
+    <div class="pi-actions">
+      <button type="button" class="pi-btn primary" id="test" data-localize>Test on light</button>
+    </div>
+    <div class="pi-status" id="status"></div>
+  </div>
+
+  <script src="pi-common.js"></script>
+  <script src="brightness.js"></script>
+</body>
+</html>

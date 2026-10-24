@@ -1,0 +1,42 @@
+{
+  "name": "DOSe LED Control",
+  "author": "Ernesto Flames \"DOSe\"",
+  "website": "https://www.isdose.com",
+  "support": "https://www.isdose.com",
+  "version": "0.1.2",
+  "category": "Tools",
+  "systems": ["Windows 10", "Windows 11"],
+  "devices": ["D200", "D200H", "D200X"],
+  "controllers": ["Keypad"],
+  "languages": ["es", "en"],
+  "tags": ["LED", "RGB", "Bluetooth", "BLE", "lighting", "smart home", "D200H"],
+  "license": "MIT",
+  "shortDescription": {
+    "es": "Teclas de color, encendido y brillo para tu tira LED RGB por Bluetooth, directamente desde el deck. Sin apps, sin nube.",
+    "en": "Color, power and brightness keys for your Bluetooth RGB LED strip, straight from the deck. No apps, no cloud."
+  },
+  "requirements": {
+    "es": "Windows 10/11 · Ulanzi Studio 3.4+ · Python 3.10+ con bleak (beta) · Bluetooth LE activo · D200/D200H/D200X (teclado)",
+    "en": "Windows 10/11 · Ulanzi Studio 3.4+ · Python 3.10+ with bleak (beta) · Bluetooth LE enabled · D200/D200H/D200X (keypad)"
+  },
+  "privacy": {
+    "es": "100% local. Sin cuentas, sin telemetría, sin peticiones de red. Solo Bluetooth LE con la lámpara.",
+    "en": "100% local. No accounts, no telemetry, no network requests. Only Bluetooth LE with the lamp."
+  },
+  "assets": {
+    "icon": "assets/icon-1024x1024.png",
+    "cover": "assets/cover-2400x1200.png",
+    "banners": [
+      "assets/banner-1-2400x1600.png",
+      "assets/banner-2-2400x1600.png",
+      "assets/banner-3-2400x1600.png"
+    ],
+    "screenshots": [
+      "assets/screenshot-1-2196x1464.png",
+      "assets/screenshot-2-2196x1464.png",
+      "assets/screenshot-3-2196x1464.png"
+    ]
+  },
+  "package": "../dist/com.dose.ledcontrol.ulanziPlugin-0.1.2.zip",
+  "note": "Metadatos de referencia para la ficha del UGC. El formulario oficial es la fuente de verdad; no es un formato de subida de Ulanzi."
+}

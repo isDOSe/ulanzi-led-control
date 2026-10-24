@@ -1,0 +1,38 @@
+name: Feature request
+description: Suggest an action, a lamp family or an improvement
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the situation, not only the solution.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - New action / feature
+        - New BLE controller family
+        - UI / property inspector
+        - Performance / reliability
+        - Documentation
+        - Other
+    validations:
+      required: true

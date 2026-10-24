@@ -1,0 +1,97 @@
+{
+  "Author": "Ernesto Flames \"DOSe\"",
+  "Name": "DOSe LED Control",
+  "Description": "Controla tu tira/lámpara LED RGB por Bluetooth desde el D200H: teclas de color, encendido, brillo y ajustes con escaneo BLE.",
+  "Icon": "assets/icons/pluginIcon.svg",
+  "Category": "LED Control",
+  "CategoryIcon": "assets/icons/categoryIcon.svg",
+  "Version": "0.1.2",
+  "UUID": "com.dose.ledcontrol.deck",
+  "Type": "JavaScript",
+  "CodePath": "plugin/app.js",
+  "PrivateAPI": true,
+  "SupportedInMultiActions": false,
+  "Actions": [
+    {
+      "Name": "Color",
+      "UUID": "com.dose.ledcontrol.deck.color",
+      "Icon": "assets/icons/colorAction.svg",
+      "PropertyInspectorPath": "property-inspector/color.html",
+      "Tooltip": "Aplica un color a la luz. Mantén pulsado para ciclar la paleta.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "Devices": [],
+      "SupportedInMultiActions": false,
+      "States": [
+        {
+          "Name": "Default",
+          "Image": "assets/icons/colorAction.svg"
+        }
+      ]
+    },
+    {
+      "Name": "Power",
+      "UUID": "com.dose.ledcontrol.deck.power",
+      "Icon": "assets/icons/powerAction.svg",
+      "PropertyInspectorPath": "property-inspector/power.html",
+      "Tooltip": "Enciende o apaga la luz.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "Devices": [],
+      "SupportedInMultiActions": false,
+      "States": [
+        {
+          "Name": "Default",
+          "Image": "assets/icons/powerAction.svg"
+        }
+      ]
+    },
+    {
+      "Name": "Brightness",
+      "UUID": "com.dose.ledcontrol.deck.brightness",
+      "Icon": "assets/icons/brightnessAction.svg",
+      "PropertyInspectorPath": "property-inspector/brightness.html",
+      "Tooltip": "Nivel, subir/bajar o ciclar el brillo.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "Devices": [],
+      "SupportedInMultiActions": false,
+      "States": [
+        {
+          "Name": "Default",
+          "Image": "assets/icons/brightnessAction.svg"
+        }
+      ]
+    },
+    {
+      "Name": "Settings & Status",
+      "UUID": "com.dose.ledcontrol.deck.settings",
+      "Icon": "assets/icons/settingsAction.svg",
+      "PropertyInspectorPath": "property-inspector/settings.html",
+      "Tooltip": "MAC, escaneo BLE, paleta y estado de la conexión. Pulsa para reconectar; mantén pulsado para reiniciar el puente.",
+      "Controllers": [
+        "Keypad"
+      ],
+      "Devices": [],
+      "SupportedInMultiActions": false,
+      "States": [
+        {
+          "Name": "Default",
+          "Image": "assets/icons/settingsAction.svg"
+        }
+      ]
+    }
+  ],
+  "OS": [
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "Software": {
+    "MinVersion": "3.4.0"
+  }
+}

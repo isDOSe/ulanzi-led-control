@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Installation guide
+    url: https://github.com/isDOSe/ulanzi-led-control/blob/main/docs/INSTALL.md
+    about: Requirements, deploy steps and first configuration.
+  - name: BLE protocol notes
+    url: https://github.com/isDOSe/ulanzi-led-control/blob/main/docs/BLE-PROTOCOL.md
+    about: Frames, UUIDs and how the controller is detected.
+  - name: Website
+    url: https://www.isdose.com
+    about: More projects by Ernesto Flames (DOSe).
