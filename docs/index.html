@@ -573,6 +573,8 @@
   .shot img {
     width: 100%;
     height: auto;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
     transition: transform 500ms cubic-bezier(0.2, 0.7, 0.2, 1), opacity 300ms ease;
     opacity: 0.94;
   }
@@ -758,6 +760,24 @@
     font-size: 0.72rem;
   }
   .flow span.arrow { color: #4c5262; }
+
+  .install-note {
+    margin: 2rem 0 0;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--line-soft);
+    font-size: 0.86rem;
+    color: var(--muted);
+  }
+  .install-note a { color: var(--teal); text-decoration: none; font-weight: 600; }
+  .install-note a:hover { text-decoration: underline; }
+  .install-note code {
+    font-family: var(--mono);
+    font-size: 0.8em;
+    color: #c2c9d7;
+    background: var(--panel);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+  }
 
   /* ---------- compat / faq ---------- */
 
@@ -1161,6 +1181,13 @@
         <span class="node" data-i18n="flow.lamp">tu lámpara</span>
         <span style="margin-left:auto" data-i18n="flow.note">NDJSON local · sin red</span>
       </div>
+
+      <p class="install-note">
+        <span data-i18n="install.zip">¿Solo quieres el ZIP?</span>
+        <a href="https://github.com/isDOSe/ulanzi-led-control/releases/latest" data-i18n="install.zipLink">Descarga la última versión</a>
+        <span data-i18n="install.zipHint">y descomprímela en</span>
+        <code>%APPDATA%\Ulanzi\UlanziDeck\Plugins</code>
+      </p>
     </div>
   </section>
 
@@ -1304,6 +1331,9 @@
       "copied": "Copiado",
       "flow.lamp": "tu lámpara",
       "flow.note": "NDJSON local · sin red",
+      "install.zip": "¿Solo quieres el ZIP?",
+      "install.zipLink": "Descarga la última versión",
+      "install.zipHint": "y descomprímela en",
       "compat.title": "Funciona con las tiras baratas que ya tienes",
       "compat.lead": "Protocolo 7E…EF y 56…AA, detección automática de servicio y caché por MAC. Si tu controlador no está en la lista, cuéntamelo.",
       "compat.cta": "Reportar una lámpara",
@@ -1377,6 +1407,9 @@
       "copied": "Copied",
       "flow.lamp": "your lamp",
       "flow.note": "Local NDJSON · no network",
+      "install.zip": "Just want the ZIP?",
+      "install.zipLink": "Download the latest release",
+      "install.zipHint": "and extract it into",
       "compat.title": "Works with the cheap strips you already own",
       "compat.lead": "7E…EF and 56…AA protocols, automatic service detection and per-MAC cache. If your controller is missing from the list, tell me.",
       "compat.cta": "Report a lamp",
