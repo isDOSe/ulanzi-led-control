@@ -31,7 +31,7 @@ BLE bridge (mock)
   ✓ power command
   ✓ scan returns devices
   ✓ identify returns services
-9 checks passed.
+10 checks passed.
 ```
 
 El test de integración lanza `ble_bridge.py --mock` de verdad: si falla, el
