@@ -1,0 +1,18 @@
+{
+  "cover": "docs/store/assets/cover-2400x1200.png",
+  "screenshots": [
+    "docs/store/assets/cover-2400x1200.png",
+    "docs/store/assets/screenshot-1-2196x1464.png",
+    "docs/store/assets/screenshot-2-2196x1464.png",
+    "docs/store/assets/screenshot-3-2196x1464.png"
+  ],
+  "longDescription": "Controla tu tira/lámpara LED RGB por Bluetooth desde el D200H: teclas de color, encendido, brillo y ajustes con escaneo BLE.",
+  "deviceTypes": [
+    "deck"
+  ],
+  "tags": [
+    "led",
+    "rgb",
+    "home"
+  ]
+}
